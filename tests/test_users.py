@@ -14,15 +14,19 @@ class UserTestCase(unittest.TestCase):
         with self.app.app_context():
             db.drop_all()
 
-    def test_register_and_login_user(self):
-        res = self.client.post("/users", json={
-            "email": "test@example.com",
-            "username": "tester",
-            "password": "password"
-        })
-        self.assertEqual(res.status_code, 201)
-        res = self.client.post("/users/login", json={
-            "email": "test@example.com",
-            "password": "password"
-        })
-        self.assertEqual(res.status_code, 200)
+def test_register_and_login_user(self):
+    res = self.client.post("/users/register", json={
+        "email": "test@example.com",
+        "username": "tester",
+        "password": "password",
+        "address": "123 Main St"
+    })
+    self.assertEqual(res.status_code, 201)
+
+    res = self.client.post("/users/login", json={
+        "email": "test@example.com",
+        "password": "password"
+    })
+    self.assertEqual(res.status_code, 200)
+
+

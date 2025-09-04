@@ -1,0 +1,19 @@
+{
+  "id": "ecommerce-env-001",
+  "name": "Ecommerce API Local",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5000",
+      "enabled": true
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2025-09-04T12:45:00Z",
+  "_postman_exported_using": "Postman/10.21.0"
+}

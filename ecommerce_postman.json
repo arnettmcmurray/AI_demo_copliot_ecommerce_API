@@ -1,275 +1,219 @@
 {
   "info": {
     "name": "E-commerce API",
-    "description": "Postman collection for testing the E-commerce API with JWT auth and role-based access.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Users",
-      "item": [
-        {
-          "name": "Register User",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"username\": \"user\",\n  \"password\": \"user123\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:5000/users",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["users"]
-            }
-          }
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": {
+          "raw": "http://127.0.0.1:5000/auth/register",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["auth", "register"]
         },
-        {
-          "name": "Login User",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"user123\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:5000/users/login",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["users", "login"]
-            }
-          }
-        },
-        {
-          "name": "Get User (self or admin)",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "http://localhost:5000/users/1",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["users", "1"]
-            }
-          }
-        },
-        {
-          "name": "Update User",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"updatedUser\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:5000/users/1",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["users", "1"]
-            }
-          }
-        },
-        {
-          "name": "Delete User",
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "http://localhost:5000/users/1",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["users", "1"]
-            }
-          }
+        "body": {
+          "mode": "raw",
+          "raw": "{\n \"email\":\"user@example.com\",\n \"username\":\"user\",\n \"password\":\"1234\",\n \"address\":\"123 Main St\"\n}"
         }
-      ]
+      }
     },
     {
-      "name": "Products",
-      "item": [
-        {
-          "name": "Create Product (Admin only)",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Laptop\",\n  \"description\": \"Gaming Laptop\",\n  \"price\": 1200,\n  \"stock\": 5,\n  \"brand\": \"Alienware\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:5000/products",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["products"]
-            }
-          }
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": {
+          "raw": "http://127.0.0.1:5000/auth/login",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["auth", "login"]
         },
-        {
-          "name": "Get All Products",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "http://localhost:5000/products",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["products"]
-            }
-          }
-        },
-        {
-          "name": "Get Product",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "http://localhost:5000/products/1",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["products", "1"]
-            }
-          }
-        },
-        {
-          "name": "Update Product (Admin only)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"price\": 1100,\n  \"stock\": 7\n}"
-            },
-            "url": {
-              "raw": "http://localhost:5000/products/1",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["products", "1"]
-            }
-          }
-        },
-        {
-          "name": "Delete Product (Admin only)",
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "http://localhost:5000/products/1",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["products", "1"]
-            }
-          }
+        "body": {
+          "mode": "raw",
+          "raw": "{\n \"email\":\"user@example.com\",\n \"password\":\"1234\"\n}"
         }
-      ]
+      }
     },
     {
-      "name": "Carts",
-      "item": [
-        {
-          "name": "Create Cart",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "http://localhost:5000/carts",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["carts"]
-            }
-          }
-        },
-        {
-          "name": "Add Item to Cart",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"product_id\": 1,\n  \"quantity\": 2\n}"
-            },
-            "url": {
-              "raw": "http://localhost:5000/carts/1/items",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["carts", "1", "items"]
-            }
-          }
-        },
-        {
-          "name": "View Cart",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "http://localhost:5000/carts/1",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["carts", "1"]
-            }
-          }
-        },
-        {
-          "name": "Remove Item from Cart",
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "http://localhost:5000/carts/1/items/1",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["carts", "1", "items", "1"]
-            }
-          }
+      "name": "Users - Me (GET)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": {
+          "raw": "http://127.0.0.1:5000/users/me",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["users", "me"]
         }
-      ]
+      }
     },
     {
-      "name": "Orders",
-      "item": [
-        {
-          "name": "Checkout Cart",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": { "mode": "raw", "raw": "{\n  \"cart_id\": 1\n}" },
-            "url": {
-              "raw": "http://localhost:5000/orders/checkout",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["orders", "checkout"]
-            }
-          }
+      "name": "Users - Me (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:5000/users/me",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["users", "me"]
         },
-        {
-          "name": "Get Order",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "http://localhost:5000/orders/1",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["orders", "1"]
-            }
-          }
+        "body": { "mode": "raw", "raw": "{\n \"username\":\"updated\"\n}" }
+      }
+    },
+    {
+      "name": "Products - All",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://127.0.0.1:5000/products",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["products"]
         }
-      ]
+      }
+    },
+    {
+      "name": "Products - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:5000/products",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["products"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n \"name\":\"Keyboard\",\n \"description\":\"Mechanical keyboard\",\n \"price\":80.00,\n \"stock\":25,\n \"brand\":\"KeyCo\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Products - Get by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://127.0.0.1:5000/products/1",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["products", "1"]
+        }
+      }
+    },
+    {
+      "name": "Products - Update by ID",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:5000/products/1",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["products", "1"]
+        },
+        "body": { "mode": "raw", "raw": "{\n \"stock\":50\n}" }
+      }
+    },
+    {
+      "name": "Carts - View",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": {
+          "raw": "http://127.0.0.1:5000/carts",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["carts"]
+        }
+      }
+    },
+    {
+      "name": "Carts - Add Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:5000/carts",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["carts"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n \"product_id\":1,\n \"quantity\":2\n}"
+        }
+      }
+    },
+    {
+      "name": "Carts - Remove Item",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": {
+          "raw": "http://127.0.0.1:5000/carts/1",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["carts", "1"]
+        }
+      }
+    },
+    {
+      "name": "Orders - Checkout",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": {
+          "raw": "http://127.0.0.1:5000/orders/checkout",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["orders"]
+        }
+      }
+    },
+    {
+      "name": "Orders - Get All",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": {
+          "raw": "http://127.0.0.1:5000/orders",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["orders"]
+        }
+      }
+    },
+    {
+      "name": "Orders - Get by ID",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": {
+          "raw": "http://127.0.0.1:5000/orders/1",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["orders", "1"]
+        }
+      }
     }
-  ]
+  ],
+  "variable": [{ "key": "token", "value": "" }]
 }

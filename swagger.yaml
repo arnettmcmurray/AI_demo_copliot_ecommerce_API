@@ -1,121 +1,42 @@
 openapi: 3.0.0
 info:
   title: E-commerce API
-  description: API for managing users, products, carts, and orders
   version: 1.0.0
-
-servers:
-  - url: http://localhost:5000/api
-
 paths:
-  /users/register:
-    post:
-      summary: Register a new user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserCreate"
-      responses:
-        "201":
-          description: User created successfully
+  /auth/register:
+    post: { summary: Register a new user }
+  /auth/login:
+    post: { summary: Login and get tokens }
+  /auth/refresh:
+    post: { summary: Refresh JWT token }
+  /auth/me:
+    get: { summary: Get current user info }
 
-  /users/login:
-    post:
-      summary: User login
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                password:
-                  type: string
-      responses:
-        "200":
-          description: Login successful
+  /users/me:
+    get: { summary: Get account }
+    put: { summary: Update account }
+    delete: { summary: Delete account }
 
   /products:
+    get: { summary: Get all products }
+    post: { summary: Create new product }
+  /products/{id}:
     get:
-      summary: Get all products
-      responses:
-        "200":
-          description: A list of products
-    post:
-      summary: Add a new product
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Product"
-      responses:
-        "201":
-          description: Product created
+      {
+        summary: Get product by ID,
+        parameters: [{ in: path, name: id, schema: { type: integer } }],
+      }
+    put: { summary: Update product by ID }
+    delete: { summary: Delete product by ID }
 
-  /carts/{user_id}:
-    get:
-      summary: Get cart for a user
-      parameters:
-        - name: user_id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: User's cart
+  /carts:
+    get: { summary: View current cart }
+    post: { summary: Add item to cart }
+  /carts/{item_id}:
+    delete: { summary: Remove item from cart }
 
   /orders:
-    post:
-      summary: Create a new order
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Order"
-      responses:
-        "201":
-          description: Order created
-
-components:
-  schemas:
-    UserCreate:
-      type: object
-      properties:
-        email:
-          type: string
-        username:
-          type: string
-        password:
-          type: string
-        address:
-          type: string
-    Product:
-      type: object
-      properties:
-        name:
-          type: string
-        price:
-          type: number
-        brand:
-          type: string
-    Order:
-      type: object
-      properties:
-        user_id:
-          type: integer
-        items:
-          type: array
-          items:
-            type: object
-            properties:
-              product_id:
-                type: integer
-              quantity:
-                type: integer
+    get: { summary: List user orders }
+    post: { summary: Checkout }
+  /orders/{id}:
+    get: { summary: Get order by ID }

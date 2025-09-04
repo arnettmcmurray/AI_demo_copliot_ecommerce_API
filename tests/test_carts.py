@@ -14,11 +14,21 @@ class CartTestCase(unittest.TestCase):
         with self.app.app_context():
             db.drop_all()
 
-    def test_cart_creation(self):
-        self.client.post("/users", json={
-            "email": "cart@example.com",
-            "username": "cartuser",
-            "password": "password"
-        })
-        res = self.client.post("/carts", json={})
-        self.assertIn(res.status_code, [201, 401])
+def test_cart_creation(self):
+    self.client.post("/users/register", json={
+        "email": "cart@example.com",
+        "username": "cartuser",
+        "password": "password",
+        "address": "456 Cart St"
+    })
+    login_res = self.client.post("/users/login", json={
+        "email": "cart@example.com",
+        "password": "password"
+    })
+    token = login_res.get_json()["access_token"]
+
+    res = self.client.post("/carts",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    self.assertIn(res.status_code, [201, 401])
+
