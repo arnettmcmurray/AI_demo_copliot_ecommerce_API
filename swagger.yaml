@@ -16,9 +16,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              $ref: "#/components/schemas/UserCreate"
       responses:
-        '201':
+        "201":
           description: User created successfully
 
   /users/login:
@@ -36,14 +36,14 @@ paths:
                 password:
                   type: string
       responses:
-        '200':
+        "200":
           description: Login successful
 
   /products:
     get:
       summary: Get all products
       responses:
-        '200':
+        "200":
           description: A list of products
     post:
       summary: Add a new product
@@ -52,9 +52,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: "#/components/schemas/Product"
       responses:
-        '201':
+        "201":
           description: Product created
 
   /carts/{user_id}:
@@ -67,7 +67,7 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: User's cart
 
   /orders:
@@ -78,9 +78,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: "#/components/schemas/Order"
       responses:
-        '201':
+        "201":
           description: Order created
 
 components:

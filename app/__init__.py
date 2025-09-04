@@ -1,10 +1,13 @@
 from flask import Flask
 from .extensions import db, ma, migrate, jwt, swagger
 from .config import Config
-from .blueprints.users import users_bp
-from .blueprints.products import products_bp
-from .blueprints.carts import carts_bp
-from .blueprints.orders import orders_bp
+
+# absolute imports for blueprints
+from blueprints.users.routes import users_bp
+from blueprints.products.routes import products_bp
+from blueprints.carts.routes import carts_bp
+from blueprints.orders.routes import orders_bp
+
 
 def create_app():
     app = Flask(__name__)
