@@ -1,0 +1,23 @@
+# .gitignore for ecommerce_api
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+*.venv
+env/
+venv/
+ENV/
+*.sqlite3
+*.db
+.vscode/
+.idea/
+.DS_Store
+migrations/__pycache__/
+migrations/*.pyc
+*.log
+*.egg-info/
+*.egg
+.venv/
+*.postman_collection.json
+*.postman_environment.json
