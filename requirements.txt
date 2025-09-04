@@ -1,0 +1,10 @@
+flask
+flask_sqlalchemy
+flask_marshmallow
+marshmallow-sqlalchemy
+flask-migrate
+werkzeug
+flask-jwt-extended
+flasgger
+pytest
+gunicorn
