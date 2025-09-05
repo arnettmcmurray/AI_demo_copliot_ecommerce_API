@@ -1,86 +1,55 @@
-from flask import Blueprint, request, jsonify
+from flask import request, jsonify
 from flask_jwt_extended import (
-    create_access_token, create_refresh_token,
-    jwt_required, get_jwt_identity
+    create_access_token,
+    create_refresh_token,
+    jwt_required,
+    get_jwt_identity,
 )
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from . import bp
+from .schemas import RegisterSchema, LoginSchema
 from app.extensions import db
 from app.models import User
-from app.config import Config
+from blueprints.users.schemas import user_schema
 
-auth_bp = Blueprint("auth", __name__)
+register_schema = RegisterSchema()
+login_schema = LoginSchema()
 
-# ---------- Register ----------
-@auth_bp.route("/register", methods=["POST"])
-def register_user():
-    data = request.get_json()
-    if not data or not all(k in data for k in ("email", "username", "password", "address")):
-        return jsonify({"error": "Missing required fields"}), 400
-
-    if User.query.filter_by(email=data["email"]).first():
+@bp.post("/register")
+def register():
+    payload = register_schema.load(request.get_json() or {})
+    if User.query.filter_by(email=payload["email"]).first():
         return jsonify({"error": "Email already registered"}), 400
 
-    new_user = User(
-        email=data["email"],
-        username=data["username"],
-        password=generate_password_hash(data["password"]),
-        address=data["address"],
-        role="customer"
+    user = User(
+        email=payload["email"],
+        username=payload["username"],
+        password_hash=generate_password_hash(payload["password"]),
+        address=payload.get("address"),
+        role="user",
     )
-
-    db.session.add(new_user)
+    db.session.add(user)
     db.session.commit()
+    return jsonify(user_schema.dump(user)), 201
 
-    return jsonify({"message": "User registered successfully"}), 201
-
-
-# ---------- Login ----------
-@auth_bp.route("/login", methods=["POST"])
-def login_user():
-    data = request.get_json()
-    user = User.query.filter_by(email=data.get("email")).first()
-
-    if not user or not check_password_hash(user.password, data.get("password")):
+@bp.post("/login")
+def login():
+    creds = login_schema.load(request.get_json() or {})
+    user = User.query.filter_by(email=creds["email"]).first()
+    if not user or not check_password_hash(user.password_hash, creds["password"]):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    access_token = create_access_token(
-        identity=str(user.id),
-        expires_delta=Config.JWT_ACCESS_TOKEN_EXPIRES
-    )
-    refresh_token = create_refresh_token(
-        identity=str(user.id),
-        expires_delta=Config.JWT_REFRESH_TOKEN_EXPIRES
-    )
-
+    access_token = create_access_token(identity=user.id)
+    refresh_token = create_refresh_token(identity=user.id)
     return jsonify({
-        "message": "Login successful",
         "access_token": access_token,
         "refresh_token": refresh_token
     }), 200
 
-
-# ---------- Refresh ----------
-@auth_bp.route("/refresh", methods=["POST"])
+@bp.post("/refresh")
 @jwt_required(refresh=True)
-def refresh_user():
-    current_user = get_jwt_identity()
-    new_access = create_access_token(
-        identity=current_user,
-        expires_delta=Config.JWT_ACCESS_TOKEN_EXPIRES
-    )
+def refresh():
+    uid = get_jwt_identity()
+    new_access = create_access_token(identity=uid)
     return jsonify({"access_token": new_access}), 200
-
-
-# ---------- Protected ----------
-@auth_bp.route("/me", methods=["GET"])
-@jwt_required()
-def me():
-    current_user = int(get_jwt_identity())
-    user = User.query.get_or_404(current_user)
-    return jsonify({
-        "id": user.id,
-        "email": user.email,
-        "username": user.username,
-        "address": user.address,
-        "role": user.role
-    }), 200

@@ -1,219 +1,234 @@
 {
   "info": {
-    "name": "E-commerce API",
+    "name": "Ecommerce API",
+    "_postman_id": "ecom-api-collection",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:5000/api" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
   "item": [
     {
-      "name": "Auth - Register",
-      "request": {
-        "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "url": {
-          "raw": "http://127.0.0.1:5000/auth/register",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["auth", "register"]
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"user@example.com\",\"username\":\"user1\",\"password\":\"Password123!\",\"address\":\"123 Road\"}"
+            }
+          }
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n \"email\":\"user@example.com\",\n \"username\":\"user\",\n \"password\":\"1234\",\n \"address\":\"123 Main St\"\n}"
-        }
-      }
-    },
-    {
-      "name": "Auth - Login",
-      "request": {
-        "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "url": {
-          "raw": "http://127.0.0.1:5000/auth/login",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["auth", "login"]
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.variables.set('accessToken', res.access_token);",
+                  "if (res.refresh_token) pm.variables.set('refreshToken', res.refresh_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"user@example.com\",\"password\":\"Password123!\"}"
+            }
+          }
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n \"email\":\"user@example.com\",\n \"password\":\"1234\"\n}"
+        {
+          "name": "Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.access_token) pm.variables.set('accessToken', res.access_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{refreshToken}}" }
+            ],
+            "url": "{{baseUrl}}/auth/refresh"
+          }
         }
-      }
+      ]
     },
     {
-      "name": "Users - Me (GET)",
-      "request": {
-        "method": "GET",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-        "url": {
-          "raw": "http://127.0.0.1:5000/users/me",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["users", "me"]
+      "name": "Users",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "if(pm.variables.get('accessToken')) { pm.request.headers.add({ key:'Authorization', value:`Bearer ${pm.variables.get('accessToken')}` }); }"
+            ],
+            "type": "text/javascript"
+          }
         }
-      }
-    },
-    {
-      "name": "Users - Me (PUT)",
-      "request": {
-        "method": "PUT",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{token}}" },
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "http://127.0.0.1:5000/users/me",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["users", "me"]
+      ],
+      "item": [
+        {
+          "name": "Me",
+          "request": { "method": "GET", "url": "{{baseUrl}}/users/me" }
         },
-        "body": { "mode": "raw", "raw": "{\n \"username\":\"updated\"\n}" }
-      }
-    },
-    {
-      "name": "Products - All",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://127.0.0.1:5000/products",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["products"]
-        }
-      }
-    },
-    {
-      "name": "Products - Create",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{token}}" },
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "http://127.0.0.1:5000/products",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["products"]
+        {
+          "name": "Update Me",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/users/me",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"updated\",\"address\":\"456 Lane\"}"
+            }
+          }
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n \"name\":\"Keyboard\",\n \"description\":\"Mechanical keyboard\",\n \"price\":80.00,\n \"stock\":25,\n \"brand\":\"KeyCo\"\n}"
+        {
+          "name": "Delete Me",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/users/me" }
         }
-      }
+      ]
     },
     {
-      "name": "Products - Get by ID",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://127.0.0.1:5000/products/1",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["products", "1"]
+      "name": "Products",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "if(pm.variables.get('accessToken')) { pm.request.headers.add({ key:'Authorization', value:`Bearer ${pm.variables.get('accessToken')}` }); }"
+            ],
+            "type": "text/javascript"
+          }
         }
-      }
-    },
-    {
-      "name": "Products - Update by ID",
-      "request": {
-        "method": "PUT",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{token}}" },
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "http://127.0.0.1:5000/products/1",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["products", "1"]
+      ],
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/products?q=mouse&brand=Logitech&page=1&per_page=20"
+          }
         },
-        "body": { "mode": "raw", "raw": "{\n \"stock\":50\n}" }
-      }
-    },
-    {
-      "name": "Carts - View",
-      "request": {
-        "method": "GET",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-        "url": {
-          "raw": "http://127.0.0.1:5000/carts",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["carts"]
-        }
-      }
-    },
-    {
-      "name": "Carts - Add Item",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{token}}" },
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "http://127.0.0.1:5000/carts",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["carts"]
+        {
+          "name": "Create (admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/products",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"MX Master 3S\",\"description\":\"Perf mouse\",\"brand\":\"Logitech\",\"sku\":\"LOGI-MX3S-GRAPH\",\"upc\":\"097855175746\",\"price_cents\":9999,\"currency\":\"USD\",\"stock\":50}"
+            }
+          }
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n \"product_id\":1,\n \"quantity\":2\n}"
+        {
+          "name": "Scan",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/products/scan",
+            "body": { "mode": "raw", "raw": "{\"code\":\"097855175746\"}" }
+          }
         }
-      }
+      ]
     },
     {
-      "name": "Carts - Remove Item",
-      "request": {
-        "method": "DELETE",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-        "url": {
-          "raw": "http://127.0.0.1:5000/carts/1",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["carts", "1"]
+      "name": "Carts",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "if(pm.variables.get('accessToken')) { pm.request.headers.add({ key:'Authorization', value:`Bearer ${pm.variables.get('accessToken')}` }); }"
+            ],
+            "type": "text/javascript"
+          }
         }
-      }
+      ],
+      "item": [
+        {
+          "name": "Get My Cart",
+          "request": { "method": "GET", "url": "{{baseUrl}}/carts" }
+        },
+        {
+          "name": "Add Item by product_id",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/carts/items",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"product_id\":1,\"quantity\":1}"
+            }
+          }
+        },
+        {
+          "name": "Add Item by code",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/carts/items",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"code\":\"097855175746\",\"quantity\":1}"
+            }
+          }
+        },
+        {
+          "name": "Remove Item",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/carts/items/1" }
+        }
+      ]
     },
     {
-      "name": "Orders - Checkout",
-      "request": {
-        "method": "POST",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-        "url": {
-          "raw": "http://127.0.0.1:5000/orders/checkout",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["orders"]
+      "name": "Orders",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "if(pm.variables.get('accessToken')) { pm.request.headers.add({ key:'Authorization', value:`Bearer ${pm.variables.get('accessToken')}` }); }"
+            ],
+            "type": "text/javascript"
+          }
         }
-      }
-    },
-    {
-      "name": "Orders - Get All",
-      "request": {
-        "method": "GET",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-        "url": {
-          "raw": "http://127.0.0.1:5000/orders",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["orders"]
+      ],
+      "item": [
+        {
+          "name": "Checkout",
+          "request": { "method": "POST", "url": "{{baseUrl}}/orders" }
+        },
+        {
+          "name": "List My Orders",
+          "request": { "method": "GET", "url": "{{baseUrl}}/orders" }
+        },
+        {
+          "name": "Get Order",
+          "request": { "method": "GET", "url": "{{baseUrl}}/orders/1" }
         }
-      }
-    },
-    {
-      "name": "Orders - Get by ID",
-      "request": {
-        "method": "GET",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-        "url": {
-          "raw": "http://127.0.0.1:5000/orders/1",
-          "host": ["127.0.0.1"],
-          "port": "5000",
-          "path": ["orders", "1"]
-        }
-      }
+      ]
     }
-  ],
-  "variable": [{ "key": "token", "value": "" }]
+  ]
 }

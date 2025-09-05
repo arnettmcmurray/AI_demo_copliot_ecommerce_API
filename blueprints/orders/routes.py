@@ -1,57 +1,49 @@
-from flask import Blueprint, request, jsonify
+from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+
+from . import bp
+from .schemas import order_schema, orders_schema
 from app.extensions import db
-from app.models import Order, OrderItem, CartItem, Cart, Product
-from app.schemas import OrderSchema
-from app.models import User
+from app.models import Order, OrderItem, Cart, CartItem
 
-orders_bp = Blueprint("orders", __name__)
-order_schema = OrderSchema()
-orders_schema = OrderSchema(many=True)
 
-@orders_bp.route("/checkout", methods=["POST"])
+@bp.post("")
 @jwt_required()
-def checkout():
-    current_user_id = int(get_jwt_identity())
-    current_user = User.query.get_or_404(current_user_id)
-    data = request.get_json()
-    cart = Cart.query.get_or_404(data["cart_id"])
+def create_order():
+    user_id = get_jwt_identity()
+    cart = Cart.query.filter_by(user_id=user_id).first()
+    if not cart or not cart.items:
+        return jsonify({"status": 400, "message": "cart is empty"}), 400
 
-    if cart.user_id != current_user.id and current_user.role != "admin":
-        return jsonify({"error": "Unauthorized"}), 403
-
-    items = CartItem.query.filter_by(cart_id=cart.id).all()
-    if not items:
-        return jsonify({"error": "Cart is empty"}), 400
-
-    order = Order(user_id=cart.user_id, status="pending", total_price=0.0)
+    total_cents = sum(item.unit_price_cents * item.quantity for item in cart.items)
+    order = Order(user_id=user_id, total_cents=total_cents, status="pending")
     db.session.add(order)
     db.session.flush()
 
-    total_price = 0
-    for item in items:
-        product = Product.query.get(item.product_id)
-        if not product or product.stock < item.quantity:
-            return jsonify({"error": f"Not enough stock for {product.name}"}), 400
-        product.stock -= item.quantity
-        order_item = OrderItem(order_id=order.id, product_id=product.id,
-                               quantity=item.quantity, price=product.price)
+    for item in cart.items:
+        order_item = OrderItem(
+            order_id=order.id,
+            product_id=item.product_id,
+            quantity=item.quantity,
+            unit_price_cents=item.unit_price_cents,
+        )
         db.session.add(order_item)
-        total_price += product.price * item.quantity
-        db.session.delete(item)
 
-    order.total_price = total_price
+    db.session.query(CartItem).filter_by(cart_id=cart.id).delete()
     db.session.commit()
-    return order_schema.jsonify(order), 201
+    return jsonify(order_schema.dump(order)), 201
 
-@orders_bp.route("/<int:id>", methods=["GET"])
+
+@bp.get("")
 @jwt_required()
-def get_order(id):
-    current_user_id = int(get_jwt_identity())
-    current_user = User.query.get_or_404(current_user_id)
-    order = Order.query.get_or_404(id)
+def list_orders():
+    user_id = get_jwt_identity()
+    orders = Order.query.filter_by(user_id=user_id).all()
+    return jsonify(orders_schema.dump(orders)), 200
 
-    if order.user_id != current_user.id and current_user.role != "admin":
-        return jsonify({"error": "Unauthorized"}), 403
 
-    return order_schema.jsonify(order), 200
+@bp.get("/<int:order_id>")
+@jwt_required()
+def get_order(order_id):
+    order = Order.query.get_or_404(order_id)
+    return jsonify(order_schema.dump(order)), 200

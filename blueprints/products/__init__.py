@@ -1,1 +1,5 @@
-from .routes import products_bp
+from flask import Blueprint
+
+bp = Blueprint("products", __name__)
+
+from . import routes

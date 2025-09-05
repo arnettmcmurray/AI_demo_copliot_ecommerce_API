@@ -1,71 +1,77 @@
-from flask import Blueprint, request, jsonify
+from flask import request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from . import bp
+from .schemas import user_schema
 from app.extensions import db
 from app.models import User
-from app.schemas import UserSchema
 
-users_bp = Blueprint("users", __name__)
-user_schema = UserSchema()
-users_schema = UserSchema(many=True)
 
-@users_bp.route("/register", methods=["POST"])
-def register_user():
-    data = request.get_json()
-    if not data.get("email") or not data.get("username") or not data.get("password"):
+@bp.post("/register")
+def register():
+    data = request.get_json() or {}
+    if not data.get("email") or not data.get("password"):
         return jsonify({"error": "Missing required fields"}), 400
-    
+
     if User.query.filter_by(email=data["email"]).first():
         return jsonify({"error": "Email already registered"}), 400
-    
-    hashed_password = generate_password_hash(data["password"])
-    new_user = User(
+
+    hashed_pw = generate_password_hash(data["password"])
+    user = User(
         email=data["email"],
-        username=data["username"],
-        password=hashed_password,
+        username=data.get("username"),
+        password_hash=hashed_pw,
         address=data.get("address"),
-        role="user"
+        role="user",
     )
-    db.session.add(new_user)
+    db.session.add(user)
     db.session.commit()
-    return user_schema.jsonify(new_user), 201
+    return jsonify(user_schema.dump(user)), 201
 
-@users_bp.route("/login", methods=["POST"])
-def login_user():
-    data = request.get_json()
+
+@bp.post("/login")
+def login():
+    data = request.get_json() or {}
     user = User.query.filter_by(email=data.get("email")).first()
-
-    if not user or not check_password_hash(user.password, data.get("password", "")):
+    if not user or not check_password_hash(user.password_hash, data.get("password", "")):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    # Always stringify identity
-    access_token = create_access_token(identity=str(user.id))
-    return jsonify({"access_token": access_token}), 200
+    token = create_access_token(identity=user.id)
+    return jsonify({"access_token": token}), 200
 
-@users_bp.route("/me", methods=["GET"])
+
+@bp.get("/me")
 @jwt_required()
-def get_account():
-    current_user_id = int(get_jwt_identity())
-    user = User.query.get_or_404(current_user_id)
-    return user_schema.jsonify(user), 200
+def get_me():
+    user_id = get_jwt_identity()
+    user = User.query.get_or_404(user_id)
+    return jsonify(user_schema.dump(user)), 200
 
-@users_bp.route("/me", methods=["PUT"])
+
+@bp.put("/me")
 @jwt_required()
 def update_account():
-    current_user_id = int(get_jwt_identity())
-    user = User.query.get_or_404(current_user_id)
-    data = request.get_json()
-    if "username" in data: user.username = data["username"]
-    if "address" in data: user.address = data["address"]
-    if "password" in data: user.password = generate_password_hash(data["password"])
+    user_id = get_jwt_identity()
+    user = User.query.get_or_404(user_id)
+    data = request.get_json() or {}
+
+    if "username" in data:
+        user.username = data["username"]
+    if "address" in data:
+        user.address = data["address"]
+    if "password" in data:
+        user.password_hash = generate_password_hash(data["password"])
+
     db.session.commit()
     return jsonify({"message": "Account updated"}), 200
 
-@users_bp.route("/me", methods=["DELETE"])
+
+@bp.delete("/me")
 @jwt_required()
 def delete_account():
-    current_user_id = int(get_jwt_identity())
-    user = User.query.get_or_404(current_user_id)
+    user_id = get_jwt_identity()
+    user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
     return jsonify({"message": "Account deleted"}), 204
